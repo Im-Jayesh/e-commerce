@@ -28,7 +28,7 @@ interface ProductFormInput {
 }
 
 export default function LoginForm() {
-    const { control, handleSubmit,reset, formState: { isSubmitting, errors } } = useForm({
+    const { control, handleSubmit,reset, formState: { isSubmitting, errors } } = useForm<ProductFormInput>({
         resolver: zodResolver(productSchema),
         defaultValues: {
         title: '',
@@ -93,7 +93,6 @@ export default function LoginForm() {
                                 render={({ field }) => (
                                     <Input 
                                     {...field} 
-                                    value={field.value || ""}
                                     placeholder="20" 
                                     type="number" 
                                     step="0.01"

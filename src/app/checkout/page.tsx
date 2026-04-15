@@ -20,13 +20,14 @@ export default function CheckoutPage() {
   const { uid, username } = useUserStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
+  const clearCart = useCartStore((state) => state.clearCart);
 
       if (!uid) {
         router.push('/login');
         return null;
     }
 
-  const clearCart = useCartStore((state) => state.clearCart);
+  
   // Calculations
   const subtotal = products.reduce((acc, curr) => acc + curr.price, 0);
   const discountPercent = 0; // Hardcoded as requested

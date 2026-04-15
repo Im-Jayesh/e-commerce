@@ -11,7 +11,7 @@ export const signupSchema = loginSchema.extend({
 
 export const productSchema = z.object({
     title: z.string(),
-    price: z.coerce.number().min(0.01, "Price must be greater than 0"),
+    price: z.number().min(0.01, "Price must be greater than 0"),
     description: z.string().max(2000, "Product desciption should be max 2000 charactors"),
     category: z.string()
 })

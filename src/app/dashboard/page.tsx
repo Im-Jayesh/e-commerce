@@ -10,20 +10,20 @@ import { Plus, PackageSearch, Store, ClipboardList } from "lucide-react";
 import Cart from "@/components/Cart";
 import Orders from "@/components/Orders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
     const router = useRouter();
     const uid = useUserStore((state) => state.uid);
     const username = useUserStore((state) => state.username);
     const role = useUserStore((state) => state.role);
+    const [showForm, setShowForm] = useState(false);
 
     if (!uid) {
         router.push('/login');
         return null;
     }
 
-    const [showForm, setShowForm] = useState(false);
 
     return (
         <div className="min-h-screen bg-background text-foreground">

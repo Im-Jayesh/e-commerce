@@ -14,7 +14,6 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { CreditCard, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { clear } from 'console'
 
 export default function CheckoutPage() {
   const { products, removeFromCart } = useCartStore();

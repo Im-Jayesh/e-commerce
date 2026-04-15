@@ -90,8 +90,17 @@ export default function LoginForm() {
                             <Controller
                                 name="price"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="20" type="number" step="0.01"/>}
-                            />
+                                render={({ field }) => (
+                                    <Input 
+                                    {...field} 
+                                    value={field.value || ""}
+                                    placeholder="20" 
+                                    type="number" 
+                                    step="0.01"
+                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                                    />
+                                )}
+                                />
                             {errors.price && (
                                 <p className="text-sm text-red-500 font-medium">
                                     {errors.price.message}

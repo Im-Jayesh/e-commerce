@@ -22,6 +22,11 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
 
+      if (!uid) {
+        router.push('/login');
+        return null;
+    }
+
   const clearCart = useCartStore((state) => state.clearCart);
   // Calculations
   const subtotal = products.reduce((acc, curr) => acc + curr.price, 0);

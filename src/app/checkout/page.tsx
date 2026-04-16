@@ -22,10 +22,12 @@ export default function CheckoutPage() {
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
 
-      if (!uid) {
+  useEffect((): any => {
+if (!uid) {
         router.push('/login');
-        return null;
     }
+  }, [uid, router])
+      
 
   
   // Calculations

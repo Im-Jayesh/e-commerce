@@ -5,7 +5,7 @@ import LogoutBtn from "@/components/LogoutBtn";
 import ProductForm from "@/components/ProductForm";
 import ProductsListing from "@/components/Products";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, PackageSearch, Store, ClipboardList } from "lucide-react"; 
 import Cart from "@/components/Cart";
 import Orders from "@/components/Orders";
@@ -19,11 +19,11 @@ export default function DashboardPage() {
     const role = useUserStore((state) => state.role);
     const [showForm, setShowForm] = useState(false);
 
-    if (!uid) {
-        router.push('/login');
-        return null;
-    }
-
+    useEffect((): any => {
+        if (!uid) {
+            router.push('/login');
+        }
+    }, [uid, router])
 
     return (
         <div className="min-h-screen bg-background text-foreground">

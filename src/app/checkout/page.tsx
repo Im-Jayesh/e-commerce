@@ -17,12 +17,36 @@ import Link from 'next/link'
 
 export default function CheckoutPage() {
   const { products, removeFromCart } = useCartStore();
-const { uid, username, isAuthLoading } = useUserStore();
+  const { uid, username } = useUserStore();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
 
-  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (!uid) {
+      toast.error("Please login to checkout");
+      router.push('/login');
+    } else if (products.length === 0) {
+      toast.error("Your cart is empty");
+      router.push('/dashboard');
+    }
+  }, [uid, mounted, products.length, router]);
+
+  if (!mounted) {
+    return null;
+  }
+
+  if (!uid || products.length === 0) {
+    return null;
+  }
+      
   // Calculations
   const subtotal = products.reduce((acc, curr) => acc + curr.price, 0);
   const discountPercent = 0; // Hardcoded as requested

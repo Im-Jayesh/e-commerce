@@ -3,21 +3,39 @@
 import { useUserStore } from "@/stores/useUserStore";
 import LogoutBtn from "@/components/LogoutBtn";
 import ProductForm from "@/components/ProductForm";
-import ProductsListing from "@/components/Products";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Plus, PackageSearch, Store, ClipboardList } from "lucide-react"; 
-import Cart from "@/components/Cart";
-import Orders from "@/components/Orders";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { toast } from 'sonner'
+import Link from "next/link";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { uid, username, role, isAuthLoading } = useUserStore();
+    const { uid, username, role } = useUserStore();
     const [showForm, setShowForm] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    useEffect(() => {
+      if (!mounted) return;
+
+      if (!uid) {
+        toast.error("Please login to access the dashboard");
+        router.push('/login');
+      } 
+    }, [uid, router, mounted]);
+
+    if (!mounted) {
+      return null;
+    }
+
+    if (!uid) {
+      return null;
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -40,7 +58,7 @@ export default function DashboardPage() {
                                 className="shadow-sm"
                                 onClick={() => setShowForm(!showForm)}
                             >
-                                {showForm ? "Close Form" : <><Plus className="w-4 h-4 mr-2" /> List Product</>}
+                                {showForm ? "Close Form" : <><Plus className="w-4 h-4 mr-2" /> Add Product</>}
                             </Button>
                         )}
                         
@@ -58,39 +76,30 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                <Tabs defaultValue="shop" className="w-full space-y-8">
-                    <div className="flex items-center justify-between">
-                        <TabsList className="grid w-[400px] grid-cols-2 shadow-sm border">
-                            <TabsTrigger value="shop" className="gap-2">
-                                <Store className="w-4 h-4" /> Shop
-                            </TabsTrigger>
-                            <TabsTrigger value="orders" className="gap-2">
-                                <ClipboardList className="w-4 h-4" /> Orders
-                            </TabsTrigger>
-                        </TabsList>
-                    </div>
+                <div className="space-y-8">
+                  <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Link href="/products"
+                      className="border rounded-lg p-6 bg-card hover:shadow-lg transition-all hover:bg-muted/50"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <Store className="w-6 h-6 text-primary" />
+                        <h2 className="text-2xl font-semibold">Shop</h2>
+                      </div>
+                      <p className="text-muted-foreground">Browse and purchase products</p>
+                    </Link>
 
-                    <TabsContent value="shop" className="space-y-8 animate-in fade-in duration-300">
-                        <div className="flex flex-col lg:flex-row gap-10">
-                            <div className="flex-1 order-2 lg:order-1">
-                                <ProductsListing />
-                            </div>
-                            
-                            <aside className="w-full lg:w-[380px] order-1 lg:order-2">
-                                <div className="sticky top-24">
-                                    <Cart />
-                                </div>
-                            </aside>
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="orders" className="animate-in fade-in duration-300">
-                        <div className="space-y-4">
-                            <h2 className="text-2xl font-bold tracking-tight">Purchase History</h2>
-                            <Orders />
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                    <Link href="/orders"
+                      className="border rounded-lg p-6 bg-card hover:shadow-lg transition-all hover:bg-muted/50"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <ClipboardList className="w-6 h-6 text-primary" />
+                        <h2 className="text-2xl font-semibold">Orders</h2>
+                      </div>
+                      <p className="text-muted-foreground">View your purchase history</p>
+                    </Link>
+                  </div>
+                </div>
             </main>
         </div>
     );

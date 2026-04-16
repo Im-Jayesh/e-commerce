@@ -6,12 +6,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useUserStore } from '@/stores/useUserStore';
 
-export default function AuthListener({ children } : { children: React.ReactNode}) {
+export default function AuthListener({ children }: { children: React.ReactNode }) {
+  const setUser = useUserStore((state) => state.setUser);
+  const removeUser = useUserStore((state) => state.removeUser);
 
-    const userStore = useUserStore();
   useEffect(() => {
-    
-    return onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         let role: 'user' | 'admin' = 'user';
         let username = '';
@@ -28,12 +28,19 @@ export default function AuthListener({ children } : { children: React.ReactNode}
           console.log("AuthListener Error:", e);
         }
 
-        userStore.setUser({uid: user.uid, username: username, email: user.email || '', role});
+        setUser({
+          uid: user.uid,
+          username: username,
+          email: user.email || '',
+          role,
+        });
       } else {
-        userStore.removeUser();
+        removeUser();
       }
     });
-  }, [userStore]);
+
+    return () => unsubscribe();
+  }, [setUser, removeUser]);
 
   return <>{children}</>;
 }

@@ -15,9 +15,9 @@ import {
 import { Button } from "./ui/button";
 import { Label } from "./ui/label"
 import { useRouter } from "next/navigation";
-import {  signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from "firebase/firestore";
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
+import { useState } from "react";
 
 interface LoginFormInput {
     email: string;
@@ -25,7 +25,7 @@ interface LoginFormInput {
 }
 
 export default function LoginForm() {
-    const { control, handleSubmit } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(loginSchema),
         defaultValues: {
         email: '',
@@ -34,14 +34,25 @@ export default function LoginForm() {
     });
 
     const router = useRouter();
-    
+    const { login } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [apiError, setApiError] = useState<string>('');
 
     const onSubmit: SubmitHandler<LoginFormInput> = async (data) => {
+        setLoading(true);
+        setApiError('');
         try {
-            await signInWithEmailAndPassword(auth, data.email, data.password);
+            await login(data.email, data.password);
+            console.log("Login successful");
+            toast.success("Login successful!");
             router.push('/dashboard')
-        } catch(error) {
+        } catch(error: any) {
+            const errorMessage = error.response?.data?.error || error.message || "Login failed";
+            setApiError(errorMessage);
+            toast.error(errorMessage);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -56,12 +67,28 @@ export default function LoginForm() {
                 <form onSubmit={handleSubmit(onSubmit)}>
 
                     <div className="flex flex-col gap-6">
+                        {apiError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                {apiError}
+                            </div>
+                        )}
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Controller
                                 name="email"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Email"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Email"
+                                            className={errors.email ? 'border-red-500' : ''}
+                                        />
+                                        {errors.email && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
                         <div className="grid gap-2">
@@ -69,11 +96,23 @@ export default function LoginForm() {
                             <Controller
                                 name="password"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Password" type="password"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Password" 
+                                            type="password"
+                                            className={errors.password ? 'border-red-500' : ''}
+                                        />
+                                        {errors.password && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
 
-                        <Button variant="outline" type="submit" > Submit </Button>
+                        <Button variant="outline" type="submit" disabled={loading}> {loading ? "Logging in..." : "Submit"} </Button>
 
                     </div>
                 </form>

@@ -9,9 +9,11 @@ import { useCartStore } from "@/stores/useCartStore"
 interface CartProductProps {
   product: {
     id: string;
-    title: string;
+    title?: string;
+    name?: string;
     price: number;
-    description: string;
+    description?: string;
+    quantity?: number;
   };
 }
 
@@ -19,7 +21,9 @@ export function CartProductCard({ product }: CartProductProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   
-  const isLongDescription = product.description.length > 60;
+  const title = product.title || product.name || 'Product';
+  const description = product.description || 'No description available';
+  const isLongDescription = description.length > 60;
 
   return (
     <Card className="mb-3 overflow-hidden border-muted shadow-sm hover:shadow-md transition-shadow">
@@ -29,14 +33,14 @@ export function CartProductCard({ product }: CartProductProps) {
           {/* Info Section */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg truncate">{product.title}</h3>
+              <h3 className="font-semibold text-lg truncate">{title}</h3>
               <p className="font-bold text-primary">${product.price.toFixed(2)}</p>
             </div>
 
             {/* Description Logic */}
             <div className="mt-1">
               <p className={`text-sm text-muted-foreground ${!isExpanded && "line-clamp-1"}`}>
-                {product.description}
+                {description}
               </p>
               
               {isLongDescription && (

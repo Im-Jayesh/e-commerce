@@ -15,9 +15,9 @@ import {
 import { Button } from "./ui/button";
 import { Label } from "./ui/label"
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
+import { useState } from "react";
 
 interface SignUpFormInput {
     username: string;
@@ -26,7 +26,7 @@ interface SignUpFormInput {
 }
 
 export default function SignUpForm() {
-    const { control, handleSubmit } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(signupSchema),
         defaultValues: {
             username:'',
@@ -36,23 +36,24 @@ export default function SignUpForm() {
     });
 
     const router = useRouter();
+    const { signup } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [apiError, setApiError] = useState<string>('');
 
     const onSubmit: SubmitHandler<SignUpFormInput> = async (data) => {
+        setLoading(true);
+        setApiError('');
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-            const user = userCredential.user;
-
-            await setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                username: data.username,
-                email: user.email,
-                role: "user",
-                createdAt: new Date().toISOString()
-            });
-
-            router.push('/login')
-        } catch(error) {
+            await signup(data.username, data.email, data.password);
+            toast.success("Signup successful!");
+            router.push('/dashboard')
+        } catch(error: any) {
+            const errorMessage = error.response?.data?.error || error.message || "Signup failed";
+            setApiError(errorMessage);
+            toast.error(errorMessage);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -67,12 +68,28 @@ export default function SignUpForm() {
                 <form onSubmit={handleSubmit(onSubmit)}>
 
                     <div className="flex flex-col gap-6">
+                        {apiError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                                {apiError}
+                            </div>
+                        )}
                         <div className="grid gap-2">
                             <Label htmlFor="username">Username</Label>
                             <Controller
                                 name="username"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Username"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Username"
+                                            className={errors.username ? 'border-red-500' : ''}
+                                        />
+                                        {errors.username && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.username.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
 
@@ -81,7 +98,18 @@ export default function SignUpForm() {
                             <Controller
                                 name="email"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Email"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Email"
+                                            className={errors.email ? 'border-red-500' : ''}
+                                        />
+                                        {errors.email && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
                         <div className="grid gap-2">
@@ -89,11 +117,23 @@ export default function SignUpForm() {
                             <Controller
                                 name="password"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Password" type="password"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Password" 
+                                            type="password"
+                                            className={errors.password ? 'border-red-500' : ''}
+                                        />
+                                        {errors.password && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
 
-                        <Button variant="outline" type="submit" > Sign up </Button>
+                        <Button variant="outline" type="submit" disabled={loading}> {loading ? "Signing up..." : "Sign up"} </Button>
 
                     </div>
                 </form>

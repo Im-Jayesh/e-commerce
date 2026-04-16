@@ -17,16 +17,29 @@ import Link from 'next/link'
 
 export default function CheckoutPage() {
   const { products, removeFromCart } = useCartStore();
-  const { uid, username } = useUserStore();
+const { uid, username, isAuthLoading } = useUserStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
 
-  useEffect((): any => {
-if (!uid) {
-        router.push('/login');
+  useEffect(() => {
+    // Wait until hydration/auth check is finished
+    if (isAuthLoading) return;
+
+    // Now we check if they are allowed
+    if (!uid) {
+      toast.error("Please login to checkout");
+      router.push('/login');
+    } else if (products.length === 0) {
+      toast.error("Your cart is empty");
+      router.push('/dashboard');
     }
-  }, [uid, router])
+  }, [uid, isAuthLoading, products.length, router]);
+
+  // Prevent "Flicker" or interaction while checking
+  if (isAuthLoading) {
+    return <div className="flex h-screen items-center justify-center">Authenticating...</div>;
+  }
       
 
   

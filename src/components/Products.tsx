@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { db } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { ProductCard } from './ProductCard'

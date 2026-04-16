@@ -5,17 +5,19 @@ export interface UserData {
   uid: string | null;
   username: string | null;
   email: string | null;
-  role: 'user' | 'admin' ; 
+  role: 'user' | 'admin';
+  isAuthLoading: boolean; // Add this
 }
 
 interface UserActions {
-  setUser: (user: UserData) => void;
+  setUser: (user: Omit<UserData, 'isAuthLoading'>) => void;
   removeUser: () => void;
+  setAuthLoading: (loading: boolean) => void;
 }
 
 type UserStore = UserData & UserActions;
 
-const initialState: UserData = {
+const initialState: Omit<UserData, 'isAuthLoading'> = {
   uid: null,
   username: null,
   email: null,
@@ -26,14 +28,21 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       ...initialState,
+      isAuthLoading: true, // Start as true
+
+      setUser: (user) => set({ ...user, isAuthLoading: false }),
       
-      setUser: (user) => set(() => ({ ...user })),
-      
-      removeUser: () => set(initialState),
+      removeUser: () => set({ ...initialState, isAuthLoading: false }),
+
+      setAuthLoading: (loading) => set({ isAuthLoading: loading }),
     }),
     {
-      name: 'user-auth-storage', 
-      storage: createJSONStorage(() => localStorage), 
+      name: 'user-auth-storage',
+      storage: createJSONStorage(() => localStorage),
+      // It sets isAuthLoading to false ONLY AFTER storage is loaded
+      onRehydrateStorage: () => (state) => {
+        state?.setAuthLoading(false);
+      },
     }
   )
 );

@@ -18,16 +18,6 @@ export default function DashboardPage() {
     const { uid, username, role, isAuthLoading } = useUserStore();
     const [showForm, setShowForm] = useState(false);
 
-    useEffect(() => {
-    // Wait until hydration/auth check is finished
-    if (isAuthLoading) return;
-
-    // Now we check if they are allowed
-    if (!uid) {
-      toast.error("Please login to access the dashboard");
-      router.push('/login');
-    } 
-  }, [uid, isAuthLoading, router]);
 
     return (
         <div className="min-h-screen bg-background text-foreground">

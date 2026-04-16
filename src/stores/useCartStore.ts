@@ -17,26 +17,25 @@ const initialState = {
   products : []
 };
 
+const isBrowser = typeof window !== 'undefined';
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set) => ({
       ...initialState,
-      
       addToCart: (product) => set((state) => {
         const isAlreadyInCart = state.products.some((p) => p.id === product.id);
         if (isAlreadyInCart) {
-          return state; // No duplicates allowed, return current state
+          return state;
         }
         return { ...state, products: [...state.products, product] };
-    }),
-      
+      }),
       removeFromCart: (productId) => set((state) => ({ ...state, products: state.products.filter((p) => p.id !== productId) })),
       clearCart: () => set((state) => ({ ...state, products: [] })),
     }),
-
     {
-      name: 'cart-storage', 
-      storage: createJSONStorage(() => localStorage), 
+      name: 'cart-storage',
+      storage: isBrowser ? createJSONStorage(() => localStorage) : undefined,
     }
   )
 );

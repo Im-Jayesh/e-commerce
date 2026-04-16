@@ -24,22 +24,21 @@ const initialState: Omit<UserData, 'isAuthLoading'> = {
   role: 'user',
 };
 
+const isBrowser = typeof window !== 'undefined';
+
 export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       ...initialState,
-      isAuthLoading: true, // Start as true
+      isAuthLoading: true,
 
       setUser: (user) => set({ ...user, isAuthLoading: false }),
-      
       removeUser: () => set({ ...initialState, isAuthLoading: false }),
-
       setAuthLoading: (loading) => set({ isAuthLoading: loading }),
     }),
     {
       name: 'user-auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      // It sets isAuthLoading to false ONLY AFTER storage is loaded
+      storage: isBrowser ? createJSONStorage(() => localStorage) : undefined,
       onRehydrateStorage: () => (state) => {
         state?.setAuthLoading(false);
       },

@@ -35,7 +35,23 @@ export function extractTokenFromRequest(request: NextRequest): string | null {
 }
 
 export function getUserFromRequest(request: NextRequest): JWTPayload | null {
+  console.log("=== AUTH X-RAY START ===");
+  
   const token = extractTokenFromRequest(request);
+  console.log("1. Token Extracted:", token ? "YES (hidden for security)" : "NO TOKEN FOUND");
+  
   if (!token) return null;
-  return verifyToken(token);
+
+  console.log("2. JWT Secret Exists:", !!process.env.JWT_SECRET);
+  console.log("3. JWT Secret Length:", process.env.JWT_SECRET?.length);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JWTPayload;
+    console.log("4. Token Verified Successfully for:", decoded.email);
+    return decoded;
+  } catch (error: any) {
+    // THIS IS THE MONEY LINE. This will tell us exactly why it fails!
+    console.error("4. JWT Verification FAILED:", error.message, error.name);
+    return null;
+  }
 }

@@ -15,7 +15,7 @@ import {
 import { Button } from "./ui/button";
 import { Label } from "./ui/label"
 import { useRouter } from "next/navigation";
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useState } from "react";
 

@@ -21,6 +21,10 @@ export function CartProductCard({ product }: CartProductProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   
+  const handleRemove = async () => {
+    await removeFromCart(product.id);
+  };
+  
   const title = product.title || product.name || 'Product';
   const description = product.description || 'No description available';
   const isLongDescription = description.length > 60;
@@ -64,7 +68,7 @@ export function CartProductCard({ product }: CartProductProps) {
               variant="ghost" 
               size="icon" 
               className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={() => removeFromCart(product.id)}
+              onClick={handleRemove}
             >
               <Trash2 className="w-5 h-5" />
             </Button>

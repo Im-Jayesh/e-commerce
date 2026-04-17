@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/axios';
-import { API_ENDPOINTS } from '@/constants/api';
+import { apiRequest } from '@/lib/api';
+import { API_ENDPOINTS } from '@/constants/endpoints';
 
 export interface OrderItem {
   id: string;
@@ -26,17 +26,14 @@ export interface CreateOrderInput {
 
 export const ordersService = {
   async getAll(): Promise<Order[]> {
-    const response = await apiClient.get(API_ENDPOINTS.ORDERS.GET_ALL);
-    return response.data;
+    return apiRequest(API_ENDPOINTS.ORDERS.GET_ALL);
   },
 
   async create(data: CreateOrderInput): Promise<Order> {
-    const response = await apiClient.post(API_ENDPOINTS.ORDERS.CREATE, data);
-    return response.data;
+    return apiRequest(API_ENDPOINTS.ORDERS.CREATE, { method: 'POST', data });
   },
 
   async updateStatus(id: string, status: 'pending' | 'processing' | 'completed'): Promise<Order> {
-    const response = await apiClient.patch(API_ENDPOINTS.ORDERS.UPDATE(id), { status });
-    return response.data;
+    return apiRequest(API_ENDPOINTS.ORDERS.UPDATE(id), { method: 'PATCH', data: { status } });
   },
 };

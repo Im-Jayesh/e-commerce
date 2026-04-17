@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { uid } = useUserStore();
+  const { user, loading } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -18,25 +18,25 @@ export default function OrdersPage() {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || loading) return;
     
-    if (!uid) {
+    if (!user) {
       toast.error("Please login to view orders");
       router.push("/login");
     }
-  }, [uid, mounted, router]);
+  }, [user, mounted, loading, router]);
 
   if (!mounted) {
     return null;
   }
 
-  if (!uid) {
+  if (!user) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container flex h-16 items-center mx-auto px-4 max-w-7xl">
           <Link
             href="/dashboard"

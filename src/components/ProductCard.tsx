@@ -24,8 +24,8 @@ interface ProductProps {
 
 export function ProductCard({ product }: ProductProps) {
     const addToCart = useCartStore((state) => state.addToCart);
-  const handleAddToCart = () => {
-    addToCart({
+  const handleAddToCart = async () => {
+    await addToCart({
       id: product.id,
       title: product.title,
       price: product.price,
@@ -58,7 +58,7 @@ export function ProductCard({ product }: ProductProps) {
       </CardContent>
 
       <CardFooter>
-        <Button onClick={() => handleAddToCart()} className={isInCart ? "w-full gap-2 bg-green-500 hover:bg-green-600" : "w-full gap-2"} disabled={isInCart}>
+        <Button onClick={handleAddToCart} className={isInCart ? "w-full gap-2 bg-green-500 hover:bg-green-600" : "w-full gap-2"} disabled={isInCart}>
           <ShoppingCart className="w-4 h-4" />
           {isInCart ? "In Cart" : "Add to Cart"}
         </Button>

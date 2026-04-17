@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useCartStore } from '@/stores/useCartStore'
-import { useUserStore } from '@/stores/useUserStore'
+import { useAuth } from '@/contexts/AuthContext'
 import { CartProductCard } from '@/components/CartProductCard'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -17,7 +17,7 @@ import Link from 'next/link'
 
 export default function CheckoutPage() {
   const { products, removeFromCart } = useCartStore();
-  const { uid, username } = useUserStore();
+  const { user, loading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -28,22 +28,22 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || loading) return;
 
-    if (!uid) {
+    if (!user) {
       toast.error("Please login to checkout");
       router.push('/login');
     } else if (products.length === 0) {
       toast.error("Your cart is empty");
       router.push('/dashboard');
     }
-  }, [uid, mounted, products.length, router]);
+  }, [user, mounted, loading, products.length, router]);
 
   if (!mounted) {
     return null;
   }
 
-  if (!uid || products.length === 0) {
+  if (!user || products.length === 0) {
     return null;
   }
       
@@ -60,8 +60,8 @@ export default function CheckoutPage() {
     try {
       // Create order document
       await addDoc(collection(db, "orders"), {
-        userId: uid,
-        customerName: username,
+        userId: user.uid,
+        customerName: user.username,
         items: products,
         subtotal: subtotal,
         total: total,

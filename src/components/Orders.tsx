@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, Clock, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { useOrders } from '@/hooks/useOrders'
 
 interface OrderItem {
   id: string;
@@ -35,28 +36,16 @@ interface Order {
 
 export default function Orders() {
   const { uid, role } = useUserStore();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const {orders}= useOrders();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!uid) return;
 
-    // 1. Logic: Admin sees all, User sees only theirs
-    const ordersRef = collection(db, "orders");
-    const q = role === 'admin' 
-      ? query(ordersRef, orderBy("createdAt", "desc"))
-      : query(ordersRef, where("userId", "==", uid), orderBy("createdAt", "desc"));
+    try {
+    }catch(err) {
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Order[];
-      setOrders(docs);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
   }, [uid, role]);
 
   const markAsCompleted = async (orderId: string) => {

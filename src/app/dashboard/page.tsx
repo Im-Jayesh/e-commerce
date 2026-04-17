@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuth } from "@/contexts/AuthContext";
 import LogoutBtn from "@/components/LogoutBtn";
 import ProductForm from "@/components/ProductForm";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import Link from "next/link";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { uid, username, role } = useUserStore();
+    const { user, loading } = useAuth();
     const [showForm, setShowForm] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -21,25 +21,25 @@ export default function DashboardPage() {
     }, []);
 
     useEffect(() => {
-      if (!mounted) return;
+      if (!mounted || loading) return;
 
-      if (!uid) {
+      if (!user) {
         toast.error("Please login to access the dashboard");
         router.push('/login');
       } 
-    }, [uid, router, mounted]);
+    }, [user, router, mounted, loading]);
 
     if (!mounted) {
       return null;
     }
 
-    if (!uid) {
+    if (!user) {
       return null;
     }
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
                 <div className="container flex h-16 items-center justify-between mx-auto px-4 max-w-7xl">
                     <div className="flex items-center gap-2 font-bold text-2xl tracking-tight">
                         <PackageSearch className="w-8 h-8 text-primary" />
@@ -48,10 +48,10 @@ export default function DashboardPage() {
 
                     <div className="flex items-center gap-6">
                         <span className="text-sm font-medium text-muted-foreground hidden md:inline-block">
-                            Logged in as <span className="text-foreground font-semibold">{username}</span>
+                            Logged in as <span className="text-foreground font-semibold">{user.username}</span>
                         </span>
                         
-                        {role === 'admin' && (
+                        {user.role === 'admin' && (
                             <Button 
                                 variant={showForm ? "destructive" : "default"} 
                                 size="sm"
@@ -68,7 +68,7 @@ export default function DashboardPage() {
             </header>
 
             <main className="container mx-auto p-4 md:p-8 max-w-7xl">
-                {showForm && role === 'admin' && (
+                {showForm && user.role === 'admin' && (
                     <div className="flex justify-center mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
                         <div className="w-full max-w-2xl">
                             <ProductForm />

@@ -14,6 +14,10 @@ export default function Cart() {
     const removeFromCart = useCartStore((state) => state.removeFromCart);
     const router = useRouter();
 
+    const handleRemoveFromCart = async (productId: string) => {
+        await removeFromCart(productId);
+    };
+
     const subtotal = products.reduce((acc, product) => acc + product.price, 0);
 
     return (

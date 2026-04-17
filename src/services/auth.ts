@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/axios';
-import { API_ENDPOINTS } from '@/constants/api';
+import { apiRequest } from '@/lib/api';
+import { API_ENDPOINTS } from '@/constants/endpoints';
 
 export interface SignupInput {
   username: string;
@@ -30,23 +30,21 @@ export interface User {
 
 export const authService = {
   async signup(data: SignupInput): Promise<AuthResponse> {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.SIGNUP, data);
-    return response.data;
+    return apiRequest(API_ENDPOINTS.AUTH.SIGNUP, { method: 'POST', data });
   },
 
   async login(data: LoginInput): Promise<AuthResponse> {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, data);
-    return response.data;
+    return apiRequest(API_ENDPOINTS.AUTH.LOGIN, { method: 'POST', data });
   },
 
   async logout(): Promise<void> {
-    await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+    await apiRequest(API_ENDPOINTS.AUTH.LOGOUT, { method: 'POST' });
     // Cookie is cleared on the server side
   },
 
   async getMe(): Promise<User> {
-    const response = await apiClient.get(API_ENDPOINTS.AUTH.ME);
-    return response.data.user;
+    const response = await apiRequest<{ user: User }>(API_ENDPOINTS.AUTH.ME);
+    return response.user;
   },
 
   isAuthenticated(): boolean {

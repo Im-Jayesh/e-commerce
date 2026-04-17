@@ -39,15 +39,19 @@ export default function LoginForm() {
     });
 
     const [success, setSuccess] = useState(false);
+    const [apiError, setApiError] = useState<string>('');
     
 
     const onSubmit: SubmitHandler<ProductFormInput> = async (data) => {
         try {
+            setApiError('');
             const productRef = await addDoc(collection(db, 'products'), {...data, createdAt: new Date().toISOString()});
             setSuccess(true);
             reset();
             setTimeout(() => setSuccess(false), 3000);
-        } catch(error) {
+        } catch(error: any) {
+            const errorMessage = error.message || 'Failed to create product';
+            setApiError(errorMessage);
             console.log(error);
         }
     };
@@ -60,6 +64,11 @@ export default function LoginForm() {
             </CardHeader>
             <CardContent>
                 {success && <p className="text-green-500 text-center mb-4">Product Listed Successfully!</p>}
+                {apiError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        {apiError}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit(onSubmit)}>
 
 
@@ -69,7 +78,16 @@ export default function LoginForm() {
                             <Controller
                                 name="title"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="e.g. Ice Cream"/>}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input {...field} placeholder="e.g. Ice Cream"/>
+                                        {errors.title && (
+                                            <p className="text-sm text-red-500 font-medium mt-1">
+                                                {errors.title.message}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
                         <div className="grid gap-2">
@@ -111,7 +129,16 @@ export default function LoginForm() {
                             <Controller
                                 name="category"
                                 control={control}
-                                render={({ field }) => <Input {...field} placeholder="Desert"  />}
+                                render={({ field }) => (
+                                    <div>
+                                        <Input {...field} placeholder="Desert"  />
+                                        {errors.category && (
+                                            <p className="text-sm text-red-500 font-medium mt-1">
+                                                {errors.category.message}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             />
                         </div>
 

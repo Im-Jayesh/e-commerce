@@ -41,12 +41,14 @@ export function Navbar() {
 
             {isAuthenticated && (
               <>
+              {user?.role !== 'admin' && (
                 <Link
                   href="/orders"
                   className="text-gray-700 hover:text-blue-600 transition"
                 >
                   My Orders
                 </Link>
+              )}
 
                 {user?.role === 'admin' && (
                   <Link
@@ -126,6 +128,7 @@ export function Navbar() {
 
             {isAuthenticated && (
               <>
+              {user?.role !== 'admin' && (
                 <Link
                   href="/orders"
                   className="block text-gray-700 hover:text-blue-600 py-2"
@@ -133,6 +136,7 @@ export function Navbar() {
                 >
                   My Orders
                 </Link>
+              )}
 
                 {user?.role === 'admin' && (
                   <Link

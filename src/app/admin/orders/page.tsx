@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Ensure this path matches where you saved the filter component
+import { OrderFilters } from '@/components/orders/OrderFilters';
 
 interface Order {
   id: string;
@@ -28,14 +30,36 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { orders, loading: ordersLoading, updateOrderStatus } = useOrders();
+  
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
+  
+  // 1. Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
       router.push('/dashboard');
     }
   }, [user, authLoading, router]);
+
+  // 2. Memoized Filtering Logic
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      
+      // Admin context: search by customer name. 
+      // User context (if reused): search by item titles.
+      const searchTarget = user?.role === 'admin' 
+        ? (order.customerName  + order.id || '') 
+        : (order.items?.map(i => i.title).join(" ") || '');
+        
+      const matchesSearch = searchTarget.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [orders, statusFilter, searchQuery, user?.role]);
 
   const handleStatusUpdate = async (
     orderId: string,
@@ -78,6 +102,15 @@ export default function AdminOrdersPage() {
           </div>
         )}
 
+        {/* 3. Render Filters above the Table */}
+        <OrderFilters 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          isAdmin={user.role === 'admin'}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle>All Orders</CardTitle>
@@ -87,9 +120,9 @@ export default function AdminOrdersPage() {
               <div className="flex justify-center py-8">
                 <p className="text-gray-600">Loading orders...</p>
               </div>
-            ) : orders.length === 0 ? (
+            ) : filteredOrders.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600">No orders found</p>
+                <p className="text-gray-600">No orders matching your filters.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -106,7 +139,8 @@ export default function AdminOrdersPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.map((order: Order) => (
+                    {/* 4. Map over filteredOrders instead of orders */}
+                    {filteredOrders.map((order: Order) => (
                       <TableRow key={order.id}>
                         <TableCell className="font-mono text-sm">
                           {order.id.substring(0, 8)}...

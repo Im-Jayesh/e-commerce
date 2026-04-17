@@ -18,6 +18,7 @@ import { CheckCircle2, Clock, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useOrders } from '@/hooks/useOrders'
 
+
 interface OrderItem {
   id: string;
   title: string;
@@ -30,19 +31,20 @@ interface Order {
   customerName: string;
   items: OrderItem[];
   total: number;
-  status: 'pending' | 'completed';
+  status: 'pending' | 'completed' | 'proccessing';
   createdAt: any;
 }
 
 export default function Orders() {
   const { uid, role } = useUserStore();
   const {orders}= useOrders();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!uid) return;
 
     try {
+      
     }catch(err) {
 
     }
@@ -96,11 +98,13 @@ export default function Orders() {
                     <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-200">
                       <CheckCircle2 className="w-3 h-3 mr-1" /> Completed
                     </Badge>
-                  ) : (
+                  ) : order.status === 'pending' ? (
                     <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">
                       <Clock className="w-3 h-3 mr-1" /> Pending
                     </Badge>
-                  )}
+                  ) : <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">
+                      <Clock className="w-3 h-3 mr-1" /> Processing
+                    </Badge>}
                 </TableCell>
                 <TableCell className="text-right">
                   {role === 'admin' && order.status === 'pending' ? (
@@ -113,7 +117,7 @@ export default function Orders() {
                     </Button>
                   ) : (
                     <span className="text-xs text-muted-foreground italic">
-                      {order.status === 'completed' ? 'Processed' : 'Awaiting admin'}
+                      {order.status === 'pending' ? 'Pending, yet to be processed' : order.status === 'processing' ? "Your Order is being Processed" : 'Completed'}
                     </span>
                   )}
                 </TableCell>

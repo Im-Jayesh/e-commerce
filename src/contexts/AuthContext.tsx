@@ -32,7 +32,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const checkAuth = async () => {
       try {
-        const response = await axios.get('/api/auth/me');
+        const response = await axios.get('/api/auth/me', {
+        withCredentials: true, // THIS IS MANDATORY FOR PRODUCTION COOKIES
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+    });
+        
         if (isMounted && response.data?.user) {
           setUser(response.data.user);
           // Load cart separately after user is set

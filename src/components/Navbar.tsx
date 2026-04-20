@@ -3,18 +3,16 @@
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { PackageSearch, ShoppingBag, ClipboardList, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logout();
-      setIsOpen(false);
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -22,164 +20,90 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-blue-600">Store</span>
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md supports-backdrop-filter:bg-white/60">
+      <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-6 max-w-7xl">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight group">
+          <div className="p-2 rounded-lg bg-black dark:bg-white group-hover:shadow-lg transition-shadow">
+            <PackageSearch className="w-5 h-5 text-white dark:text-black" />
+          </div>
+          <span className="text-black dark:text-white">Shop</span>
+        </Link>
+
+        {/* Navigation Links */}
+        <nav className="hidden md:flex items-center gap-8">
+          <Link
+            href="/products"
+            className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium"
+          >
+            Products
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/products"
-              className="text-gray-700 hover:text-blue-600 transition"
-            >
-              Products
-            </Link>
-
-            {isAuthenticated && (
-              <>
+          {isAuthenticated && (
+            <>
               {user?.role !== 'admin' && (
                 <Link
                   href="/orders"
-                  className="text-gray-700 hover:text-blue-600 transition"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium"
                 >
                   My Orders
                 </Link>
               )}
 
-                {user?.role === 'admin' && (
-                  <Link
-                    href="/admin/orders"
-                    className="text-gray-700 hover:text-blue-600 transition font-medium"
-                  >
-                    Admin
-                  </Link>
-                )}
-              </>
-            )}
-          </div>
+              <Link
+                href="/cart"
+                className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium flex items-center gap-2"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Cart
+              </Link>
 
-          {/* Auth and Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <span className="text-gray-700">
-                  {user?.username || 'User'}
-                </span>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
+              {user?.role === 'admin' && (
+                <Link
+                  href="/admin/orders"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium flex items-center gap-2"
                 >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" size="sm">
-                    Login
-                  </Button>
+                  <Zap className="w-4 h-4" />
+                  Admin
                 </Link>
-                <Link href="/signup">
-                  <Button size="sm">Sign Up</Button>
-                </Link>
-              </>
-            )}
-          </div>
+              )}
+            </>
+          )}
+        </nav>
 
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+        {/* Right Section */}
+        <div className="flex items-center gap-4">
+          {isAuthenticated ? (
+            <>
+              <div className="hidden sm:block text-sm text-right">
+                <p className="text-slate-600 dark:text-slate-400">Welcome,</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{user?.username}</p>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="text-xs">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="text-xs">
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t">
-          <div className="px-4 py-4 space-y-3">
-            <Link
-              href="/products"
-              className="block text-gray-700 hover:text-blue-600 py-2"
-              onClick={() => setIsOpen(false)}
-            >
-              Products
-            </Link>
-
-            {isAuthenticated && (
-              <>
-              {user?.role !== 'admin' && (
-                <Link
-                  href="/orders"
-                  className="block text-gray-700 hover:text-blue-600 py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  My Orders
-                </Link>
-              )}
-
-                {user?.role === 'admin' && (
-                  <Link
-                    href="/admin/orders"
-                    className="block text-gray-700 hover:text-blue-600 py-2 font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Admin
-                  </Link>
-                )}
-              </>
-            )}
-
-            <div className="border-t pt-3 space-y-2">
-              {isAuthenticated ? (
-                <>
-                  <p className="text-gray-700 py-2">
-                    {user?.username || 'User'}
-                  </p>
-                  <Button
-                    onClick={handleLogout}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/signup" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full">Sign Up</Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+    </header>
   );
 }

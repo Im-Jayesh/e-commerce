@@ -27,8 +27,12 @@ interface ProductFormInput {
     category: string;
 }
 
-export default function LoginForm() {
-    const { control, handleSubmit,reset, formState: { isSubmitting, errors } } = useForm<ProductFormInput>({
+interface ProductFormProps {
+    onSuccess?: () => void;
+}
+
+export default function ProductForm({ onSuccess }: ProductFormProps) {
+    const { control, handleSubmit, reset, formState: { isSubmitting, errors } } = useForm<ProductFormInput>({
         resolver: zodResolver(productSchema),
         defaultValues: {
         title: '',
@@ -48,7 +52,10 @@ export default function LoginForm() {
             const productRef = await addDoc(collection(db, 'products'), {...data, createdAt: new Date().toISOString()});
             setSuccess(true);
             reset();
-            setTimeout(() => setSuccess(false), 3000);
+            setTimeout(() => {
+                setSuccess(false);
+                if (onSuccess) onSuccess();
+            }, 1500);
         } catch(error: any) {
             const errorMessage = error.message || 'Failed to create product';
             setApiError(errorMessage);
@@ -57,33 +64,80 @@ export default function LoginForm() {
     };
 
     return (
-        <Card className="w-full max-w-sm min-w-sm">
-            <CardHeader>
-                <CardTitle>Create Product</CardTitle>
-                <CardDescription>Welcome, Enter product detials and click List Product.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {success && <p className="text-green-500 text-center mb-4">Product Listed Successfully!</p>}
-                {apiError && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                        {apiError}
+        <div className="w-full">
+            {success && (
+                <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 text-center font-medium">
+                    ✓ Product added successfully!
+                </div>
+            )}
+            {apiError && (
+                <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                    {apiError}
+                </div>
+            )}
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex flex-col gap-6">
+                    <div className="grid gap-2">
+                        <Label htmlFor="title" className="text-slate-900 dark:text-white font-semibold">Product Title</Label>
+                        <Controller
+                            name="title"
+                            control={control}
+                            render={({ field }) => (
+                                <div>
+                                    <Input 
+                                        {...field} 
+                                        placeholder="e.g. Premium Wireless Headphones"
+                                        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                                    />
+                                    {errors.title && (
+                                        <p className="text-sm text-red-500 font-medium mt-1">
+                                            {errors.title.message}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        />
                     </div>
-                )}
-                <form onSubmit={handleSubmit(onSubmit)}>
-
-
-                    <div className="flex flex-col gap-6">
+                    <div className="grid gap-2">
+                        <Label htmlFor="description" className="text-slate-900 dark:text-white font-semibold">Description</Label>
+                        <Controller
+                            name="description"
+                            control={control}
+                            render={({ field }) => (
+                                <div>
+                                    <Textarea 
+                                        {...field} 
+                                        placeholder="Describe your product..."
+                                        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 min-h-24"
+                                    />
+                                    {errors.description && (
+                                        <p className="text-sm text-red-500 font-medium mt-1">
+                                            {errors.description.message}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="title">Title</Label>
+                            <Label htmlFor="price" className="text-slate-900 dark:text-white font-semibold">Price ($)</Label>
                             <Controller
-                                name="title"
+                                name="price"
                                 control={control}
                                 render={({ field }) => (
                                     <div>
-                                        <Input {...field} placeholder="e.g. Ice Cream"/>
-                                        {errors.title && (
+                                        <Input 
+                                            {...field} 
+                                            placeholder="99.99" 
+                                            type="number" 
+                                            step="0.01"
+                                            className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
+                                        />
+                                        {errors.price && (
                                             <p className="text-sm text-red-500 font-medium mt-1">
-                                                {errors.title.message}
+                                                {errors.price.message}
                                             </p>
                                         )}
                                     </div>
@@ -91,47 +145,17 @@ export default function LoginForm() {
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="desciption">Description</Label>
-                            <Controller
-                                name="description"
-                                control={control}
-                                render={({ field }) => <Textarea {...field} placeholder="Cold Chocolate Ice Cream, very cold!"  />}
-                            />
-                            {errors.description && (
-                                <p className="text-sm text-red-500 font-medium">
-                                    {errors.description.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="price">Price</Label>
-                            <Controller
-                                name="price"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input 
-                                    {...field} 
-                                    placeholder="20" 
-                                    type="number" 
-                                    step="0.01"
-                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
-                                    />
-                                )}
-                                />
-                            {errors.price && (
-                                <p className="text-sm text-red-500 font-medium">
-                                    {errors.price.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category" className="text-slate-900 dark:text-white font-semibold">Category</Label>
                             <Controller
                                 name="category"
                                 control={control}
                                 render={({ field }) => (
                                     <div>
-                                        <Input {...field} placeholder="Desert"  />
+                                        <Input 
+                                            {...field} 
+                                            placeholder="Electronics"
+                                            className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                                        />
                                         {errors.category && (
                                             <p className="text-sm text-red-500 font-medium mt-1">
                                                 {errors.category.message}
@@ -141,13 +165,17 @@ export default function LoginForm() {
                                 )}
                             />
                         </div>
-
-                        <Button variant="outline" type="submit" >{isSubmitting ? "Listing..." : "List Product"}</Button>
-
                     </div>
-                </form>
-            </CardContent>
-        </Card>
-    )
 
+                    <Button 
+                        type="submit" 
+                        className="w-full h-11 bg-slate-900 hover:bg-black text-white dark:bg-white dark:text-black dark:hover:bg-slate-100 font-semibold transition-all duration-200"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Adding..." : "Add Product"}
+                    </Button>
+                </div>
+            </form>
+        </div>
+    );
 }

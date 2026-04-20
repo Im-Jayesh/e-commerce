@@ -30,27 +30,27 @@ export function CartProductCard({ product }: CartProductProps) {
   const isLongDescription = description.length > 60;
 
   return (
-    <Card className="mb-3 overflow-hidden border-muted shadow-sm hover:shadow-md transition-shadow">
+    <Card className="mb-4 overflow-hidden border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-gray-900 hover:shadow-md transition-all duration-200">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-4">
           
           {/* Info Section */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg truncate">{title}</h3>
-              <p className="font-bold text-primary">${product.price.toFixed(2)}</p>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-semibold text-sm text-slate-900 dark:text-white truncate">{title}</h3>
+              <p className="font-bold text-black dark:text-white whitespace-nowrap">${product.price.toFixed(2)}</p>
             </div>
 
             {/* Description Logic */}
-            <div className="mt-1">
-              <p className={`text-sm text-muted-foreground ${!isExpanded && "line-clamp-1"}`}>
+            <div className="mt-2">
+              <p className={`text-xs text-slate-600 dark:text-slate-400 ${!isExpanded && "line-clamp-1"}`}>
                 {description}
               </p>
               
               {isLongDescription && (
                 <button 
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-xs text-primary font-medium mt-1 flex items-center gap-0.5 hover:underline"
+                  className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-1.5 flex items-center gap-0.5 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                 >
                   {isExpanded ? (
                     <>Show less <ChevronUp className="w-3 h-3" /></>
@@ -63,14 +63,14 @@ export function CartProductCard({ product }: CartProductProps) {
           </div>
 
           {/* Actions Section */}
-          <div className="flex flex-col items-center justify-center border-l pl-4">
+          <div className="flex flex-col items-center justify-center">
             <Button 
               variant="ghost" 
-              size="icon" 
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              size="sm"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               onClick={handleRemove}
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
 

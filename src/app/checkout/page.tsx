@@ -12,23 +12,18 @@ import { db } from '@/lib/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { CreditCard, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { CreditCard } from 'lucide-react'
+import { Navbar } from '@/components/Navbar'
 
 export default function CheckoutPage() {
   const { products, removeFromCart } = useCartStore();
   const { user, loading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || loading) return;
+    if (loading) return;
 
     if (!user) {
       toast.error("Please login to checkout");
@@ -37,9 +32,9 @@ export default function CheckoutPage() {
       toast.error("Your cart is empty");
       router.push('/dashboard');
     }
-  }, [user, mounted, loading, products.length, router]);
+  }, [user, loading, products.length, router]);
 
-  if (!mounted) {
+  if (loading) {
     return null;
   }
 
@@ -81,12 +76,10 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-5xl">
-      <Link href="/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6">
-        <ArrowLeft className="w-4 h-4" /> Back to Shop
-      </Link>
-
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+    <div className="min-h-screen bg-white dark:bg-black">
+      <Navbar />
+      <div className="container mx-auto py-10 px-4 max-w-5xl">
+        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
@@ -145,6 +138,7 @@ export default function CheckoutPage() {
         </div>
 
       </div>
+    </div>
     </div>
   )
 }

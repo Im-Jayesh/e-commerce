@@ -33,6 +33,13 @@ export function Navbar() {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8">
           <Link
+            href="/dashboard"
+            className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium"
+          >
+            Dashboard
+          </Link>
+
+          <Link
             href="/products"
             className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-medium"
           >

@@ -15,9 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { OrderFilters } from '@/components/orders/OrderFilters';
-import { SalesLineChart } from '@/components/SalesLineChart';
 import { ProductFormModal } from '@/components/ProductFormModal';
-import { Plus, DollarSign } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 
 interface Order {
